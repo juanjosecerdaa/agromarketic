@@ -1,0 +1,43 @@
+{
+  "name": "agromarketnic",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "db:seed": "node prisma/seed.mjs",
+    "admin:promote": "node scripts/promote-admin.mjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.0",
+    "@uploadcare/file-uploader": "^1.35.1",
+    "@uploadcare/rest-client": "^6.25.1",
+    "argon2": "^0.45.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "^16.4.3",
+    "next-auth": "^5.0.0-beta.29",
+    "nodemailer": "^8.0.11",
+    "prisma": "^6.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.5",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
+}
