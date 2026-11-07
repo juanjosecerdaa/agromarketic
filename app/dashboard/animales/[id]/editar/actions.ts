@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { ROLES } from "@/lib/auth/roles";
+import { isSupportedAnimalCategorySlug } from "@/lib/animal-categories";
 import { prisma } from "@/lib/prisma";
 
 export type EditAnimalFormState = {
@@ -215,10 +216,10 @@ export async function updateAnimal(
           id: categoryId,
           isActive: true,
         },
-        select: { id: true },
+        select: { id: true, slug: true },
       });
 
-      if (!category) {
+      if (!category || !isSupportedAnimalCategorySlug(category.slug)) {
         throw new Error("INVALID_CATEGORY");
       }
 

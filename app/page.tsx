@@ -178,7 +178,7 @@ export default async function Home() {
               <div className="overflow-hidden rounded-[2rem] border-8 border-white/10 shadow-2xl">
                 <img
                   src={FALLBACK_IMAGE}
-                  alt="Ganado bovino en Nicaragua"
+                  alt="Animales de ganadería en Nicaragua"
                   className="h-[430px] w-full object-cover"
                 />
               </div>
