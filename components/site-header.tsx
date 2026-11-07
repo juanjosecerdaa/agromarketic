@@ -3,7 +3,6 @@ import Image from "next/image";
 import {
   Bell,
   Heart,
-  Menu,
   MessageCircle,
   Search,
   UserRound,
@@ -11,6 +10,7 @@ import {
 
 import { auth } from "@/auth";
 import { logout } from "@/components/auth-actions";
+import { MobileSiteMenu } from "@/components/mobile-site-menu";
 import { prisma } from "@/lib/prisma";
 import { Button, Input } from "./ui";
 
@@ -139,7 +139,7 @@ export async function SiteHeader({ dashboard = false }: { dashboard?: boolean })
     : [0, 0];
 
   return (
-    <header className="border-b border-ink/10 bg-cream/95 backdrop-blur">
+    <header className="relative z-40 border-b border-ink/10 bg-cream/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-5 py-4 lg:px-8">
         <Link href="/" className="flex h-12 shrink-0 items-center">
           <Image
@@ -221,61 +221,14 @@ export async function SiteHeader({ dashboard = false }: { dashboard?: boolean })
           )}
         </div>
 
-        <details className="relative sm:hidden">
-          <summary
-            className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-xl text-forest hover:bg-white [&::-webkit-details-marker]:hidden"
-            aria-label="Abrir menú"
-          >
-            <Menu />
-          </summary>
-          <div className="fixed left-0 top-20 z-10 box-border flex max-h-[calc(100dvh-5rem)] w-[min(90vw,360px)] max-w-[100vw] flex-col overflow-y-auto rounded-r-2xl border border-l-0 border-ink/10 bg-cream p-5 shadow-xl">
-            <div className="grid gap-1">
-              <HeaderLink href="/catalogo">Explorar</HeaderLink>
-              {primaryRole && (
-                <AccountLinks
-                  role={primaryRole}
-                  unreadCount={unreadCount}
-                  notificationUnreadCount={notificationUnreadCount}
-                  mobile
-                />
-              )}
-            </div>
-            <form action="/catalogo" method="get" className="mt-3 flex flex-col gap-2 border-t border-ink/10 pt-3 min-[360px]:flex-row">
-              <Input
-                name="buscar"
-                maxLength={100}
-                placeholder="Buscar animales..."
-                aria-label="Buscar animales"
-              />
-              <Button type="submit" className="w-full min-[360px]:w-auto">Buscar</Button>
-            </form>
-            <div className="mt-3 border-t border-ink/10 pt-3">
-              {user && primaryRole ? (
-                <>
-                  <p className="px-3 text-sm font-semibold">{displayName}</p>
-                  <p className="px-3 py-1 text-xs text-ink/50">
-                    {roleLabels[primaryRole]}
-                  </p>
-                  <form action={logout} className="mt-2">
-                    <button
-                      type="submit"
-                      className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-terracotta hover:bg-white"
-                    >
-                      Cerrar sesión
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <Link
-                  href="/login"
-                  className="block rounded-lg px-3 py-2 text-sm font-semibold text-forest hover:bg-white"
-                >
-                  Ingresar
-                </Link>
-              )}
-            </div>
-          </div>
-        </details>
+        <div className="sm:hidden">
+          <MobileSiteMenu
+            role={primaryRole}
+            unreadCount={unreadCount}
+            notificationUnreadCount={notificationUnreadCount}
+            displayName={displayName}
+          />
+        </div>
       </div>
     </header>
   );
