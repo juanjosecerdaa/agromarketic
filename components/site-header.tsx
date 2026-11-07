@@ -228,7 +228,7 @@ export async function SiteHeader({ dashboard = false }: { dashboard?: boolean })
           >
             <Menu />
           </summary>
-          <div className="absolute right-0 top-12 z-10 w-64 rounded-2xl border border-ink/10 bg-cream p-3 shadow-xl">
+          <div className="fixed left-0 top-20 z-10 box-border flex max-h-[calc(100dvh-5rem)] w-[min(90vw,360px)] max-w-[100vw] flex-col overflow-y-auto rounded-r-2xl border border-l-0 border-ink/10 bg-cream p-5 shadow-xl">
             <div className="grid gap-1">
               <HeaderLink href="/catalogo">Explorar</HeaderLink>
               {primaryRole && (
@@ -240,14 +240,14 @@ export async function SiteHeader({ dashboard = false }: { dashboard?: boolean })
                 />
               )}
             </div>
-            <form action="/catalogo" method="get" className="mt-3 flex gap-2 border-t border-ink/10 pt-3">
+            <form action="/catalogo" method="get" className="mt-3 flex flex-col gap-2 border-t border-ink/10 pt-3 min-[360px]:flex-row">
               <Input
                 name="buscar"
                 maxLength={100}
                 placeholder="Buscar animales..."
                 aria-label="Buscar animales"
               />
-              <Button type="submit">Buscar</Button>
+              <Button type="submit" className="w-full min-[360px]:w-auto">Buscar</Button>
             </form>
             <div className="mt-3 border-t border-ink/10 pt-3">
               {user && primaryRole ? (
