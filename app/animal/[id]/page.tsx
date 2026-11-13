@@ -16,11 +16,9 @@ import { ReservationForm } from "@/components/reservation-form";
 import { FavoriteButton } from "@/components/favorite-button";
 import { auth } from "@/auth";
 import { ROLES } from "@/lib/auth/roles";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 export const dynamic = "force-dynamic";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
 
 const sexLabels = {
   MALE: "Macho",
@@ -142,7 +140,7 @@ export default async function AnimalPage({
   const location = `${animal.finca.municipality.name}, ${animal.finca.department.name}`;
   const imageUrls = animal.images.length > 0
     ? animal.images.map((image) => image.url)
-    : [FALLBACK_IMAGE];
+    : [getAnimalCategoryImage(animal.category.slug)];
   const weight = formatWeight(animal.weightKg);
   const description =
     animal.description?.trim() ||

@@ -6,11 +6,9 @@ import { AnimalCard, type AnimalCardData } from "@/components/animal-card";
 import { Button } from "@/components/ui";
 import { ROLES } from "@/lib/auth/roles";
 import { prisma } from "@/lib/prisma";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 export const dynamic = "force-dynamic";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
 
 const sexLabels = {
   MALE: "Macho",
@@ -60,7 +58,7 @@ export default async function FavoritesPage() {
           quantity: true,
           price: true,
           status: true,
-          category: { select: { name: true } },
+          category: { select: { name: true, slug: true } },
           finca: {
             select: {
               name: true,
@@ -84,7 +82,7 @@ export default async function FavoritesPage() {
     category: animal.category.name,
     location: `${animal.finca.municipality.name}, ${animal.finca.department.name}`,
     price: formatPrice(animal.price),
-    image: animal.images[0]?.url || FALLBACK_IMAGE,
+    image: animal.images[0]?.url || getAnimalCategoryImage(animal.category.slug),
     tag:
       animal.status === "AVAILABLE"
         ? "Disponible"

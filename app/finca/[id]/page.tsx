@@ -7,11 +7,9 @@ import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 import { ProfileVisitTracker } from "./profile-visit-tracker";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 export const dynamic = "force-dynamic";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
 
 const fincaStatusLabels = {
   ACTIVE: "Activa",
@@ -125,7 +123,7 @@ export default async function FincaPage({
           currency: true,
           status: true,
           category: {
-            select: { name: true },
+            select: { name: true, slug: true },
           },
           images: {
             orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
@@ -154,7 +152,7 @@ export default async function FincaPage({
       category: animal.category.name,
       location: `${finca.municipality.name}, ${finca.department.name}`,
       price: formatPrice(animal.price, animal.currency),
-      image: animal.images[0]?.url || FALLBACK_IMAGE,
+      image: animal.images[0]?.url || getAnimalCategoryImage(animal.category.slug),
       tag: animalStatusLabels[animal.status],
       specs: [
         sexLabels[animal.sex],

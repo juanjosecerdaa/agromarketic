@@ -19,9 +19,7 @@ import { StatCard } from "@/components/stat-card";
 import { Button } from "@/components/ui";
 import { ROLES } from "@/lib/auth/roles";
 import { prisma } from "@/lib/prisma";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 const fincaStatusLabels = {
   ACTIVE: "Activa",
@@ -104,7 +102,7 @@ export default async function Dashboard() {
               price: true,
               currency: true,
               status: true,
-              category: { select: { name: true } },
+              category: { select: { name: true, slug: true } },
               images: {
                 orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
                 take: 1,
@@ -389,7 +387,10 @@ export default async function Dashboard() {
                 {animals.slice(0, 3).map((animal) => (
                   <div className="flex items-center gap-4 py-4" key={animal.id}>
                     <img
-                      src={animal.images[0]?.url || FALLBACK_IMAGE}
+                      src={
+                        animal.images[0]?.url ||
+                        getAnimalCategoryImage(animal.category.slug)
+                      }
                       alt=""
                       className="h-14 w-16 rounded-xl object-cover"
                     />

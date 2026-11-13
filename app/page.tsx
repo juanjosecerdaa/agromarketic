@@ -11,11 +11,9 @@ import { AnimalCard, type AnimalCardData } from "@/components/animal-card";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 export const dynamic = "force-dynamic";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
 
 const sexLabels = {
   MALE: "Macho",
@@ -117,7 +115,7 @@ export default async function Home() {
       category: animal.category.name,
       location: `${animal.finca.municipality.name}, ${animal.finca.department.name}`,
       price: formatPrice(animal.price),
-      image: animal.images[0]?.url || FALLBACK_IMAGE,
+      image: animal.images[0]?.url || getAnimalCategoryImage(animal.category.slug),
       tag: "Disponible",
       specs: [
         sexLabels[animal.sex],
@@ -177,7 +175,7 @@ export default async function Home() {
               <div className="absolute -right-10 -top-12 h-72 w-72 rounded-full border border-white/10" />
               <div className="overflow-hidden rounded-[2rem] border-8 border-white/10 shadow-2xl">
                 <img
-                  src={FALLBACK_IMAGE}
+                  src="/ganado-bovino.jpg"
                   alt="Animales de ganadería en Nicaragua"
                   className="h-[430px] w-full object-cover"
                 />
@@ -221,7 +219,7 @@ export default async function Home() {
                   className="group relative h-56 overflow-hidden rounded-2xl"
                 >
                   <img
-                    src={FALLBACK_IMAGE}
+                    src={getAnimalCategoryImage(category.slug)}
                     alt={category.name}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />

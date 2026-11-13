@@ -18,9 +18,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { Badge, Button, Input } from "@/components/ui";
 import { ROLES } from "@/lib/auth/roles";
 import { prisma } from "@/lib/prisma";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 const statusLabels: Record<AnimalStatus, string> = {
   AVAILABLE: "Disponible",
@@ -208,7 +206,7 @@ export default async function AdminAnimals({
         currency: true,
         createdAt: true,
         category: {
-          select: { name: true },
+          select: { name: true, slug: true },
         },
         finca: {
           select: {
@@ -405,7 +403,7 @@ type AnimalAdminData = {
   price: { toString(): string };
   currency: string;
   createdAt: Date;
-  category: { name: string };
+  category: { name: string; slug: string };
   finca: {
     name: string;
     owner: { name: string };
@@ -423,7 +421,10 @@ function AnimalAdminCard({ animal }: { animal: AnimalAdminData }) {
     <article className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
       <div className="relative h-48 bg-sand">
         <img
-          src={animal.images[0]?.url || FALLBACK_IMAGE}
+          src={
+            animal.images[0]?.url ||
+            getAnimalCategoryImage(animal.category.slug)
+          }
           alt={name}
           className="h-full w-full object-cover"
         />

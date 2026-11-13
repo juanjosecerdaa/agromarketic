@@ -17,8 +17,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=900&q=80";
+import { getAnimalCategoryImage } from "@/lib/animal-categories";
 
 const animalTypeLabels = {
   INDIVIDUAL: "Individual",
@@ -99,7 +98,7 @@ export default async function MyAnimalsPage() {
       },
       include: {
         category: {
-          select: { name: true },
+          select: { name: true, slug: true },
         },
         finca: {
           select: {
@@ -191,7 +190,10 @@ export default async function MyAnimalsPage() {
               >
                 <div className="relative h-52 overflow-hidden bg-cream">
                   <img
-                    src={animal.images[0]?.url || FALLBACK_IMAGE}
+                    src={
+                      animal.images[0]?.url ||
+                      getAnimalCategoryImage(animal.category.slug)
+                    }
                     alt={name}
                     className="h-full w-full object-cover"
                   />
