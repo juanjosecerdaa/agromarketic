@@ -7,16 +7,23 @@ export default function Registro() {
   return (
     <main className="min-h-screen bg-cream px-5 py-10">
       <div className="mx-auto max-w-2xl">
-        <Link
-          href="/"
-          className="inline-flex h-12 items-center rounded-xl bg-white px-3"
-        >
-          <Image src="/logo.png" alt="AgroMarketNIC" width={180} height={120} className="-my-[21px] h-[90px] w-[135px] object-contain sm:h-[120px] sm:w-[180px] sm:-my-9" priority />
-        </Link>
-        <div className="mt-10 rounded-3xl border border-ink/10 bg-white p-7 shadow-soft md:p-10">
+        <div className="rounded-3xl border border-ink/10 bg-white px-7 pb-7 pt-2 shadow-soft md:px-10 md:pb-10 md:pt-2 [&>form]:mt-6">
+          <Link
+            href="/"
+            className="mx-auto mb-1 flex w-fit items-center justify-center"
+          >
+            <Image
+              src="/logo.png"
+              alt="AgroMarketNIC"
+              width={220}
+              height={147}
+              className="h-auto w-[180px] object-contain sm:w-[220px]"
+              priority
+            />
+          </Link>
           <Link
             href="/login"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-ink/50"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-ink/50"
           >
             <ArrowLeft className="h-4 w-4" /> Ya tengo una cuenta
           </Link>
@@ -26,7 +33,7 @@ export default function Registro() {
           <h1 className="mt-2 font-display text-4xl font-extrabold">
             Crea tu cuenta
           </h1>
-          <p className="mt-3 text-ink/55">
+          <p className="mt-2 text-ink/55">
             Empieza a conectar con el mercado ganadero de Nicaragua.
           </p>
           <RegistroForm />

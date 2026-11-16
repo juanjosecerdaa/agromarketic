@@ -29,10 +29,15 @@ export async function createReservation(
     );
   }
 
-  if (!session.user.roles.includes(ROLES.BUYER)) {
-    redirect(
-      session.user.roles.includes(ROLES.ADMIN) ? "/admin" : "/dashboard",
-    );
+  if (session.user.roles.includes(ROLES.ADMIN)) {
+    redirect("/admin");
+  }
+
+  if (
+    session.user.roles.includes(ROLES.FARMER) ||
+    !session.user.roles.includes(ROLES.BUYER)
+  ) {
+    redirect("/dashboard");
   }
 
   if (typeof animalId !== "string" || !animalId) {

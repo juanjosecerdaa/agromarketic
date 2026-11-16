@@ -122,6 +122,27 @@ export default async function AnimalPage({
   const isBuyer =
     session?.user.status === "ACTIVE" &&
     session.user.roles.includes(ROLES.BUYER);
+  const isAdmin = session?.user.roles.includes(ROLES.ADMIN) ?? false;
+  const hasFarmerRole = session?.user.roles.includes(ROLES.FARMER) ?? false;
+  const canShowConsultButton =
+    !session ||
+    (session.user.status === "ACTIVE" &&
+      !isAdmin &&
+      (session.user.roles.includes(ROLES.BUYER) ||
+        session.user.roles.includes(ROLES.FARMER)) &&
+      animal.finca.ownerId !== session.user.id);
+  const canShowReservationForm =
+    animal.status === "AVAILABLE" &&
+    session?.user.status === "ACTIVE" &&
+    isBuyer &&
+    !hasFarmerRole &&
+    !isAdmin &&
+    animal.finca.ownerId !== session.user.id;
+  const showReservationOptions =
+    canShowConsultButton ||
+    canShowReservationForm ||
+    animal.status !== "AVAILABLE" ||
+    !session;
   const isFavorite = isBuyer
     ? Boolean(
         await prisma.favorite.findUnique({
@@ -266,32 +287,60 @@ export default async function AnimalPage({
                 </p>
               </div>
 
-              <div className="mt-6 grid items-start gap-4 lg:grid-cols-3">
-                <form
-                  action={startConversation}
-                  className="rounded-2xl border border-ink/10 bg-white p-4"
+              {showReservationOptions && (
+                <div
+                  className={`mt-6 grid items-start gap-4 ${
+                    canShowConsultButton ? "lg:grid-cols-3" : ""
+                  }`}
                 >
-                  <input type="hidden" name="animalId" value={animal.id} />
-                  <Button className="w-full" variant="outline" type="submit">
-                    <MessageCircle className="h-4 w-4" /> Consultar
-                  </Button>
-                </form>
-                {animal.status === "AVAILABLE" ? (
-                  <div className="lg:col-span-2">
-                    <ReservationForm
-                      animalId={animal.id}
-                      animalName={name}
-                      price={formatPrice(animal.price, animal.currency)}
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-ink/10 bg-white p-4 lg:col-span-2">
-                    <Button className="w-full" disabled>
-                      No disponible para reserva
-                    </Button>
-                  </div>
-                )}
-              </div>
+                  {canShowConsultButton && (
+                    <form
+                      action={startConversation}
+                      className="rounded-2xl border border-ink/10 bg-white p-4"
+                    >
+                      <input type="hidden" name="animalId" value={animal.id} />
+                      <Button className="w-full" variant="outline" type="submit">
+                        <MessageCircle className="h-4 w-4" /> Consultar
+                      </Button>
+                    </form>
+                  )}
+                  {animal.status !== "AVAILABLE" ? (
+                    <div
+                      className={`rounded-2xl border border-ink/10 bg-white p-4 ${
+                        canShowConsultButton ? "lg:col-span-2" : ""
+                      }`}
+                    >
+                      <Button className="w-full" disabled>
+                        No disponible para reserva
+                      </Button>
+                    </div>
+                  ) : canShowReservationForm ? (
+                    <div className={canShowConsultButton ? "lg:col-span-2" : ""}>
+                      <ReservationForm
+                        animalId={animal.id}
+                        animalName={name}
+                        price={formatPrice(animal.price, animal.currency)}
+                      />
+                    </div>
+                  ) : !session ? (
+                    <div
+                      className={`rounded-2xl border border-ink/10 bg-cream p-5 ${
+                        canShowConsultButton ? "lg:col-span-2" : ""
+                      }`}
+                    >
+                      <p className="text-sm font-semibold text-ink">
+                        Inicia sesión como comprador para solicitar una reserva.
+                      </p>
+                      <Link
+                        href={`/login?callbackUrl=/animal/${animal.id}`}
+                        className="mt-3 inline-flex h-11 items-center rounded-xl bg-forest px-4 text-sm font-bold text-white hover:bg-forest/90"
+                      >
+                        Iniciar sesión
+                      </Link>
+                    </div>
+                  ) : null}
+                </div>
+              )}
 
               <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#d9e8d1] bg-[#f1f7ed] p-4">
                 <ShieldCheck className="h-7 w-7 shrink-0 text-leaf" />

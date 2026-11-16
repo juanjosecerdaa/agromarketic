@@ -28,7 +28,7 @@ export function RegistroForm() {
       <fieldset className="sm:col-span-2">
         <legend className="text-sm font-semibold">Tipo de cuenta</legend>
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
-          <label className="cursor-pointer rounded-2xl border-2 border-forest bg-[#f1f7ed] p-4 text-left has-[:not(:checked)]:border-ink/10 has-[:not(:checked)]:bg-white">
+          <label className="cursor-pointer rounded-2xl border border-ink/10 bg-white p-4 text-left transition hover:border-forest has-[:checked]:border-2 has-[:checked]:border-forest has-[:checked]:bg-[#f1f7ed] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest">
             <input
               className="sr-only"
               type="radio"
@@ -45,7 +45,7 @@ export function RegistroForm() {
             </span>
           </label>
 
-          <label className="cursor-pointer rounded-2xl border border-ink/10 p-4 text-left hover:border-forest has-[:checked]:border-2 has-[:checked]:border-forest has-[:checked]:bg-[#f1f7ed]">
+          <label className="cursor-pointer rounded-2xl border border-ink/10 bg-white p-4 text-left transition hover:border-forest has-[:checked]:border-2 has-[:checked]:border-forest has-[:checked]:bg-[#f1f7ed] has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-forest">
             <input
               className="sr-only"
               type="radio"

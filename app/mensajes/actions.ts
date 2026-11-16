@@ -16,7 +16,13 @@ export type MessageFormState = {
 export async function markConversationAsRead(conversationId: string) {
   const session = await auth();
 
-  if (!session || session.user.status !== "ACTIVE") {
+  if (
+    !session ||
+    session.user.status !== "ACTIVE" ||
+    session.user.roles.includes(ROLES.ADMIN) ||
+    (!session.user.roles.includes(ROLES.BUYER) &&
+      !session.user.roles.includes(ROLES.FARMER))
+  ) {
     return;
   }
 
@@ -67,9 +73,16 @@ export async function startConversation(formData: FormData) {
     );
   }
 
-  if (!session.user.roles.includes(ROLES.BUYER)) {
+  if (session.user.roles.includes(ROLES.ADMIN)) {
+    redirect("/admin");
+  }
+
+  if (
+    !session.user.roles.includes(ROLES.BUYER) &&
+    !session.user.roles.includes(ROLES.FARMER)
+  ) {
     redirect(
-      session.user.roles.includes(ROLES.ADMIN) ? "/admin" : "/catalogo",
+      "/catalogo",
     );
   }
 
@@ -87,12 +100,32 @@ export async function startConversation(formData: FormData) {
       finca: {
         select: {
           ownerId: true,
+          owner: {
+            select: {
+              status: true,
+              roles: {
+                select: {
+                  role: {
+                    select: { name: true },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     },
   });
 
-  if (!animal || animal.finca.ownerId === session.user.id) {
+  const ownerRoles =
+    animal?.finca.owner.roles.map(({ role }) => role.name) ?? [];
+  if (
+    !animal ||
+    animal.finca.ownerId === session.user.id ||
+    animal.finca.owner.status !== "ACTIVE" ||
+    !ownerRoles.includes(ROLES.FARMER) ||
+    ownerRoles.includes(ROLES.ADMIN)
+  ) {
     redirect(`/animal/${animalId}`);
   }
 
@@ -129,6 +162,7 @@ export async function sendMessage(
   if (
     !session ||
     session.user.status !== "ACTIVE" ||
+    session.user.roles.includes(ROLES.ADMIN) ||
     (!session.user.roles.includes(ROLES.BUYER) &&
       !session.user.roles.includes(ROLES.FARMER))
   ) {
@@ -177,6 +211,10 @@ export async function sendMessage(
       conversation.buyerId === session.user.id
         ? conversation.sellerId
         : conversation.buyerId;
+
+    if (recipientId === session.user.id) {
+      return { error: "La conversación no está disponible." };
+    }
 
     await prisma.$transaction(async (transaction) => {
       await transaction.message.create({
