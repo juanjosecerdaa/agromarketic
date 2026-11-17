@@ -4,6 +4,10 @@ import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import {
+  GoogleSignInButton,
+  isGoogleSignInConfigured,
+} from "@/components/google-sign-in-button";
 import { getAuthorizedDestination } from "@/lib/auth/redirects";
 import { LoginForm } from "./login-form";
 
@@ -14,6 +18,7 @@ type LoginPageProps = {
 export default async function Login({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const session = await auth();
+  const googleConfigured = isGoogleSignInConfigured();
   const destination =
     session?.user?.status === "ACTIVE"
       ? getAuthorizedDestination(session.user.roles, params.callbackUrl)
@@ -66,9 +71,11 @@ export default async function Login({ searchParams }: LoginPageProps) {
             Gestiona tus animales y conecta con compradores.
           </p>
 
+          <GoogleSignInButton dividerLabel="o continuar con correo" />
           <LoginForm
             registered={params.registered === "1"}
             callbackUrl={params.callbackUrl}
+            googleConfigured={googleConfigured}
           />
 
           <p className="mt-8 text-center text-sm text-ink/55">
