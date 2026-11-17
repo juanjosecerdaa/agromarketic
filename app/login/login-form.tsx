@@ -12,9 +12,11 @@ const initialState: LoginState = {};
 export function LoginForm({
   registered,
   callbackUrl,
+  googleConfigured,
 }: {
   registered: boolean;
   callbackUrl?: string;
+  googleConfigured: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(
     loginUser,
@@ -22,7 +24,10 @@ export function LoginForm({
   );
 
   return (
-    <form action={formAction} className="mt-8 space-y-5">
+    <form
+      action={formAction}
+      className={`${googleConfigured ? "mt-5" : "mt-8"} space-y-5`}
+    >
       {callbackUrl && (
         <input type="hidden" name="callbackUrl" value={callbackUrl} />
       )}

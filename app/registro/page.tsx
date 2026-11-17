@@ -1,9 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import {
+  GoogleSignInButton,
+  isGoogleSignInConfigured,
+} from "@/components/google-sign-in-button";
 import { RegistroForm } from "./registro-form";
 
 export default function Registro() {
+  const googleConfigured = isGoogleSignInConfigured();
+
   return (
     <main className="min-h-screen bg-cream px-5 py-10">
       <div className="mx-auto max-w-2xl">
@@ -36,6 +42,7 @@ export default function Registro() {
           <p className="mt-2 text-ink/55">
             Empieza a conectar con el mercado ganadero de Nicaragua.
           </p>
+          <GoogleSignInButton dividerLabel="o crear cuenta con correo" />
           <RegistroForm />
         </div>
       </div>
