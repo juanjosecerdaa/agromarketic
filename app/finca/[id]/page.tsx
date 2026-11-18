@@ -3,6 +3,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { AnimalCard, type AnimalCardData } from "@/components/animal-card";
+import { FincaVerificationBadge } from "@/components/finca-verification-badge";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
@@ -187,12 +188,24 @@ export default async function FincaPage({
         <section className="rounded-3xl bg-forest p-7 text-white sm:p-10">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <Badge className="bg-white/15 text-white">
-                {fincaStatusLabels[finca.status]}
-              </Badge>
-              <h1 className="mt-4 font-display text-4xl font-extrabold">
-                {finca.name}
-              </h1>
+              {finca.status !== "VERIFIED" && (
+                <Badge className="bg-white/15 text-white">
+                  {fincaStatusLabels[finca.status]}
+                </Badge>
+              )}
+              <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <h1 className="min-w-0 break-words font-display text-4xl font-extrabold">
+                  {finca.name}
+                </h1>
+                <FincaVerificationBadge
+                  verified={finca.status === "VERIFIED"}
+                />
+              </div>
+              {finca.status === "VERIFIED" && (
+                <p className="mt-2 text-xs text-white/65">
+                  Verificación interna de AgroMarketNIC.
+                </p>
+              )}
               <p className="mt-3 flex items-center gap-2 text-sm text-white/70">
                 <MapPin className="h-4 w-4" />
                 {finca.municipality.name}, {finca.department.name}

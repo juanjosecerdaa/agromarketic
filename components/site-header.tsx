@@ -95,16 +95,14 @@ function AccountLinks({
           )}
         </Link>
       )}
-      {role !== "ADMIN" && (
-        <Link href="/notificaciones" className={className ?? "rounded-lg px-3 py-2 text-sm font-semibold text-ink/65 hover:bg-white"}>
-          <Bell className="mr-1 inline-block h-4 w-4" /> Notificaciones
-          {notificationUnreadCount > 0 && (
-            <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-terracotta px-1.5 py-0.5 text-[10px] font-bold text-white">
-              {notificationUnreadCount}
-            </span>
-          )}
-        </Link>
-      )}
+      <Link href="/notificaciones" className={className ?? "rounded-lg px-3 py-2 text-sm font-semibold text-ink/65 hover:bg-white"}>
+        <Bell className="mr-1 inline-block h-4 w-4" /> Notificaciones
+        {notificationUnreadCount > 0 && (
+          <span className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-terracotta px-1.5 py-0.5 text-[10px] font-bold text-white">
+            {notificationUnreadCount}
+          </span>
+        )}
+      </Link>
       {role === "BUYER" && (
         <Link href="/reservas" className={className ?? "rounded-lg px-3 py-2 text-sm font-semibold text-ink/65 hover:bg-white"}>
           Mis reservas

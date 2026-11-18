@@ -107,7 +107,7 @@ export function MobileSiteMenu({
               )}
             </MobileLink>
           )}
-          {role && role !== "ADMIN" && (
+          {role && (
             <MobileLink href="/notificaciones" onNavigate={closeMenu}>
               <Bell className="mr-2 h-4 w-4 shrink-0" />
               Notificaciones
