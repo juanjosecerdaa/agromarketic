@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, MapPin, Pencil, Plus, Trees } from "lucide-react";
+import { MapPin, Pencil, Plus, Trees } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { Button } from "@/components/ui";
 import { ROLES } from "@/lib/auth/roles";
 import { prisma } from "@/lib/prisma";
+import { FincaVerificationPanel } from "./finca-verification-panel";
 import { FincaForm } from "./finca-form";
 
 export default async function FincaPage() {
@@ -36,6 +37,17 @@ export default async function FincaPage() {
         status: true,
         department: { select: { name: true } },
         municipality: { select: { name: true } },
+        verificationRequests: {
+          orderBy: [{ requestedAt: "desc" }, { createdAt: "desc" }],
+          take: 1,
+          select: {
+            status: true,
+            requestedAt: true,
+            evidenceUrl: true,
+            note: true,
+            rejectionReason: true,
+          },
+        },
         _count: { select: { animals: true } },
       },
     }),
@@ -65,24 +77,34 @@ export default async function FincaPage() {
   } as const;
 
   return (
-    <main className="min-h-screen bg-cream px-5 py-10">
+    <main className="min-h-screen bg-cream px-5 py-6 sm:py-8">
       <div className="mx-auto max-w-5xl">
-        <Link
-          href="/dashboard"
-          className="inline-flex h-12 items-center rounded-xl bg-white px-3"
-        >
-          <Image src="/logo.png" alt="AgroMarketNIC" width={180} height={120} className="-my-9 h-[120px] w-[180px] object-contain" />
-        </Link>
-        <div className="mt-10 rounded-3xl border border-ink/10 bg-white p-7 shadow-soft md:p-10">
+        <header className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
+          <Link
+            href="/dashboard"
+            aria-label="AgroMarketNIC — volver al dashboard"
+            className="inline-flex min-w-0 items-center"
+          >
+            <Image
+              src="/logo.png"
+              alt="AgroMarketNIC"
+              width={180}
+              height={120}
+              className="h-auto w-[132px] object-contain sm:w-[160px]"
+              priority
+            />
+          </Link>
+          <Link
+            href="/dashboard"
+            className="shrink-0 text-sm font-semibold text-ink/50 hover:text-forest"
+          >
+            Volver al dashboard
+          </Link>
+        </header>
+        <div className="rounded-3xl border border-ink/10 bg-white p-7 shadow-soft md:p-10">
           <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-ink/50 hover:text-forest"
-              >
-                <ArrowLeft className="h-4 w-4" /> Volver al dashboard
-              </Link>
-              <p className="mt-7 text-sm font-bold uppercase tracking-[.18em] text-terracotta">
+              <p className="text-sm font-bold uppercase tracking-[.18em] text-terracotta">
                 Gestión de propiedades
               </p>
               <h1 className="mt-2 font-display text-4xl font-extrabold">
@@ -167,6 +189,19 @@ export default async function FincaPage() {
                       <Pencil className="h-4 w-4" /> Editar finca
                     </Button>
                   </Link>
+                  <FincaVerificationPanel
+                    fincaId={finca.id}
+                    fincaVerified={finca.status === "VERIFIED"}
+                    latestRequest={
+                      finca.verificationRequests[0]
+                        ? {
+                            ...finca.verificationRequests[0],
+                            requestedAt:
+                              finca.verificationRequests[0].requestedAt.toISOString(),
+                          }
+                        : null
+                    }
+                  />
                 </article>
               ))}
             </section>

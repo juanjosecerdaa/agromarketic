@@ -10,16 +10,31 @@ import { prisma } from "@/lib/prisma";
 async function getActiveUserId() {
   const session = await auth();
 
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      status: true,
+      roles: { select: { role: { select: { name: true } } } },
+    },
+  });
+  const roles = user?.roles.map(({ role }) => role.name) ?? [];
+
   if (
-    !session ||
-    session.user.status !== "ACTIVE" ||
-    (!session.user.roles.includes(ROLES.BUYER) &&
-      !session.user.roles.includes(ROLES.FARMER))
+    !user ||
+    user.status !== "ACTIVE" ||
+    ![ROLES.ADMIN, ROLES.BUYER, ROLES.FARMER].some((role) =>
+      roles.includes(role),
+    )
   ) {
     return null;
   }
 
-  return session.user.id;
+  return user.id;
 }
 
 export async function markNotificationAsRead(formData: FormData) {
@@ -49,6 +64,7 @@ export async function markNotificationAsRead(formData: FormData) {
 
   revalidatePath("/notificaciones");
   revalidatePath("/dashboard");
+  revalidatePath("/admin");
   revalidatePath("/mensajes");
 
   if (notification.href) {
@@ -69,4 +85,5 @@ export async function markAllNotificationsAsRead() {
 
   revalidatePath("/notificaciones");
   revalidatePath("/dashboard");
+  revalidatePath("/admin");
 }

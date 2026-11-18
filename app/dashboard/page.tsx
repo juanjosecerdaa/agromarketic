@@ -4,7 +4,9 @@ import {
   Bell,
   CheckCircle2,
   ChartNoAxesCombined,
+  CircleAlert,
   Eye,
+  FileSearch,
   MessageCircle,
   Package,
   Plus,
@@ -41,6 +43,9 @@ const notificationIcons = {
   RESERVATION_REJECTED: XCircle,
   RESERVATION_CANCELLED: XCircle,
   RESERVATION_COMPLETED: CheckCircle2,
+  FINCA_VERIFICATION_APPROVED: CheckCircle2,
+  FINCA_VERIFICATION_REJECTED: CircleAlert,
+  FINCA_VERIFICATION_REQUESTED: FileSearch,
 } as const;
 
 function formatPrice(value: { toString(): string }, currency: string) {
@@ -268,13 +273,21 @@ export default async function Dashboard() {
                 <div className="mt-5 divide-y divide-ink/10">
                   {recentNotifications.map((notification) => {
                     const Icon = notificationIcons[notification.type];
+                    const verificationIconClass =
+                      notification.type === "FINCA_VERIFICATION_REQUESTED"
+                        ? "bg-amber-100 text-amber-800"
+                        : notification.type === "FINCA_VERIFICATION_APPROVED"
+                          ? "bg-leaf/15 text-forest"
+                          : notification.type === "FINCA_VERIFICATION_REJECTED"
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-forest/10 text-forest";
                     const item = (
                       <>
                         <div
                           className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${
                             notification.readAt
                               ? "bg-ink/10 text-ink/45"
-                              : "bg-forest/10 text-forest"
+                              : verificationIconClass
                           }`}
                         >
                           <Icon className="h-4 w-4" />

@@ -8,6 +8,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { Badge, Button, Input } from "@/components/ui";
 import { ROLES } from "@/lib/auth/roles";
 import { prisma } from "@/lib/prisma";
+import { FincaVerificationReview } from "./finca-verification-review";
 
 const fincaStatusLabels: Record<FincaStatus, string> = {
   ACTIVE: "Activa",
@@ -97,6 +98,23 @@ export default async function AdminFincas({
     : "";
   const search = firstParam(params.busqueda).trim().slice(0, 100);
 
+  const pendingVerifications = await prisma.fincaVerification.findMany({
+    where: { status: "PENDING" },
+    orderBy: { requestedAt: "asc" },
+    select: {
+      id: true,
+      requestedAt: true,
+      evidenceUrl: true,
+      note: true,
+      finca: {
+        select: {
+          name: true,
+          owner: { select: { name: true } },
+        },
+      },
+    },
+  });
+
   const fincas = await prisma.finca.findMany({
     where: {
       ...(status ? { status: status as FincaStatus } : {}),
@@ -164,6 +182,17 @@ export default async function AdminFincas({
         <p className="text-sm text-ink/45">Administración AgroMarketNIC</p>
         <h2 className="mt-1 font-display text-3xl font-extrabold">Fincas</h2>
       </div>
+
+      <FincaVerificationReview
+        requests={pendingVerifications.map((request) => ({
+          id: request.id,
+          fincaName: getDisplayName(request.finca.name),
+          requesterName: request.finca.owner.name,
+          requestedAt: request.requestedAt.toISOString(),
+          evidenceUrl: request.evidenceUrl,
+          note: request.note,
+        }))}
+      />
 
       <section className="mt-8 rounded-2xl border border-ink/10 bg-white p-5 sm:p-6">
         <form className="flex flex-col gap-3 sm:flex-row" method="get">

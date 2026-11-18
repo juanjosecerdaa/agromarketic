@@ -3,6 +3,7 @@ import {
   Bell,
   CheckCircle2,
   CircleAlert,
+  FileSearch,
   MessageCircle,
   XCircle,
 } from "lucide-react";
@@ -26,6 +27,9 @@ const notificationIcons = {
   RESERVATION_REJECTED: XCircle,
   RESERVATION_CANCELLED: XCircle,
   RESERVATION_COMPLETED: CheckCircle2,
+  FINCA_VERIFICATION_APPROVED: CheckCircle2,
+  FINCA_VERIFICATION_REJECTED: CircleAlert,
+  FINCA_VERIFICATION_REQUESTED: FileSearch,
 } as const;
 
 function formatDate(date: Date) {
@@ -38,16 +42,26 @@ function formatDate(date: Date) {
 export default async function NotificationsPage() {
   const session = await auth();
 
-  if (!session || session.user.status !== "ACTIVE") {
+  if (!session?.user?.id) {
     redirect("/login?callbackUrl=/notificaciones");
   }
-  if (session.user.roles.includes(ROLES.ADMIN)) {
-    redirect("/admin");
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      status: true,
+      roles: { select: { role: { select: { name: true } } } },
+    },
+  });
+  const roles = user?.roles.map(({ role }) => role.name) ?? [];
+  const hasAllowedRole = [ROLES.ADMIN, ROLES.BUYER, ROLES.FARMER].some(
+    (role) => roles.includes(role),
+  );
+
+  if (!user || user.status !== "ACTIVE") {
+    redirect("/login?callbackUrl=/notificaciones");
   }
-  if (
-    !session.user.roles.includes(ROLES.BUYER) &&
-    !session.user.roles.includes(ROLES.FARMER)
-  ) {
+  if (!hasAllowedRole) {
     redirect("/catalogo");
   }
 
@@ -100,13 +114,21 @@ export default async function NotificationsPage() {
           <div className="mt-8 grid gap-4">
             {notifications.map((notification) => {
               const Icon = notificationIcons[notification.type];
+              const verificationIconClass =
+                notification.type === "FINCA_VERIFICATION_REQUESTED"
+                  ? "bg-amber-100 text-amber-800"
+                  : notification.type === "FINCA_VERIFICATION_APPROVED"
+                    ? "bg-leaf/15 text-forest"
+                    : notification.type === "FINCA_VERIFICATION_REJECTED"
+                    ? "bg-amber-100 text-amber-800"
+                    : "bg-forest/10 text-forest";
               const content = (
                 <>
                   <div
                     className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${
                       notification.readAt
                         ? "bg-ink/10 text-ink/45"
-                        : "bg-forest/10 text-forest"
+                        : verificationIconClass
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -171,10 +193,12 @@ export default async function NotificationsPage() {
           </div>
         )}
         <Link
-          href="/"
+          href={roles.includes(ROLES.ADMIN) ? "/admin" : "/"}
           className="mt-8 inline-block text-sm font-semibold text-forest"
         >
-          Volver al marketplace
+          {roles.includes(ROLES.ADMIN)
+            ? "Volver a administración"
+            : "Volver al marketplace"}
         </Link>
       </div>
     </main>

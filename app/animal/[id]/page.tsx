@@ -2,13 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
-  BadgeCheck,
   MapPin,
   MessageCircle,
-  ShieldCheck,
 } from "lucide-react";
 
 import { Badge, Button } from "@/components/ui";
+import { FincaVerificationBadge } from "@/components/finca-verification-badge";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/site-header";
 import { startConversation } from "@/app/mensajes/actions";
@@ -342,37 +341,35 @@ export default async function AnimalPage({
                 </div>
               )}
 
-              <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#d9e8d1] bg-[#f1f7ed] p-4">
-                <ShieldCheck className="h-7 w-7 shrink-0 text-leaf" />
-                <div>
-                  <p className="text-sm font-bold">Compra protegida</p>
-                  <p className="text-xs text-ink/55">
-                    Información del vendedor verificada por AgroMarketNIC.
-                  </p>
-                </div>
-              </div>
             </section>
 
-            <div className="mt-7 flex items-center gap-3 border-t border-ink/10 pt-6">
+            <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-ink/10 pt-6">
               <div className="grid h-11 w-11 place-items-center rounded-full bg-forest font-bold text-white">
                 {animal.finca.name.slice(0, 2).toUpperCase()}
               </div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <Link
                   href={`/finca/${animal.finca.id}`}
                   className="font-bold hover:text-forest"
                 >
                   {animal.finca.name}
                 </Link>
-                <p className="text-xs text-ink/50">
-                  Estado de la finca: {animal.finca.status === "VERIFIED"
-                    ? "Verificada"
-                    : animal.finca.status === "ACTIVE"
+                {animal.finca.status === "VERIFIED" ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <FincaVerificationBadge verified />
+                    <span className="text-xs text-ink/50">
+                      Verificación interna de AgroMarketNIC.
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-xs text-ink/50">
+                    Estado de la finca:{" "}
+                    {animal.finca.status === "ACTIVE"
                       ? "Activa"
                       : "No disponible"}
-                </p>
+                  </p>
+                )}
               </div>
-              <BadgeCheck className="h-5 w-5 text-leaf" />
             </div>
           </div>
         </div>

@@ -20,6 +20,12 @@ enum FincaStatus {
   VERIFIED
 }
 
+enum FincaVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 enum AnimalType {
   INDIVIDUAL
   LOT
@@ -72,6 +78,9 @@ enum NotificationType {
   RESERVATION_REJECTED
   RESERVATION_CANCELLED
   RESERVATION_COMPLETED
+  FINCA_VERIFICATION_APPROVED
+  FINCA_VERIFICATION_REJECTED
+  FINCA_VERIFICATION_REQUESTED
 }
 
 model User {
@@ -100,6 +109,8 @@ model User {
   favorites             Favorite[]
   notifications         Notification[]
   passwordResetTokens   PasswordResetToken[]
+  fincaVerificationRequests FincaVerification[]  @relation("FincaVerificationRequestedBy")
+  fincaVerificationReviews  FincaVerification[]  @relation("FincaVerificationReviewedBy")
 
   @@index([status])
   @@index([createdAt])
@@ -171,11 +182,35 @@ model Finca {
   animals      Animal[]
   images       Image[]      @relation("FincaImages")
   profileVisits ProfileVisit[]
+  verificationRequests FincaVerification[] @relation("FincaVerificationFinca")
 
   @@index([ownerId])
   @@index([departmentId])
   @@index([municipalityId])
   @@index([status])
+}
+
+model FincaVerification {
+  id              String                  @id @default(uuid()) @db.Uuid
+  fincaId         String                  @db.Uuid
+  requestedById   String                  @db.Uuid
+  status          FincaVerificationStatus @default(PENDING)
+  evidenceUrl     String
+  note            String?
+  rejectionReason String?
+  reviewedById    String?                 @db.Uuid
+  requestedAt     DateTime                @default(now())
+  reviewedAt      DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  finca       Finca @relation("FincaVerificationFinca", fields: [fincaId], references: [id], onDelete: Restrict)
+  requestedBy User  @relation("FincaVerificationRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  reviewedBy  User? @relation("FincaVerificationReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([fincaId, status])
+  @@index([requestedById])
+  @@index([reviewedById])
 }
 
 model ProfileVisit {
