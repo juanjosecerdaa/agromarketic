@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, ChartNoAxesCombined, ClipboardList, Home, LayoutDashboard, MessageCircle, Package, Settings, Sprout, UserRound } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Bell, Sprout } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  DashboardMobileNavigation,
+  DashboardNavigationLinks,
+} from "@/components/dashboard-navigation";
 
 export async function DashboardShell({
   children,
@@ -64,23 +66,6 @@ export async function DashboardShell({
         })
       : 0;
   })();
-  const links: Array<[string | null, string, LucideIcon]> = admin
-    ? [
-        ["/admin", "Resumen", LayoutDashboard],
-        ["/admin/usuarios", "Usuarios", UserRound],
-        ["/admin/fincas", "Fincas", Home],
-        ["/admin/animales", "Publicaciones", Package],
-        ["/admin/reservas", "Reservas", ClipboardList],
-      ]
-    : [
-        ["/", "Inicio", Home],
-        ["/dashboard", "Resumen", LayoutDashboard],
-        ["/dashboard/animales", "Mis animales", Package],
-        ["/mensajes", "Mensajes", MessageCircle],
-        ["/dashboard/reservas", "Reservas", Package],
-        ["/dashboard/finca", "Mi finca", Home],
-        ["/dashboard/configuracion", "Configuración", Settings],
-      ];
   const displayName = userName?.trim() || "Usuario";
   const initials = displayName
     .split(/\s+/)
@@ -124,55 +109,13 @@ export async function DashboardShell({
           <p className="mt-1 font-semibold">{fincaLabel}</p>
           <p className="mt-1 text-xs text-white/60">{statusLabel}</p>
         </div>
-        <nav className="mt-8 flex flex-1 flex-col gap-1">
-          {links.map(([href, label, Icon]) =>
-            href ? (
-              <Link
-                href={href}
-                key={label}
-                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-white/65 hover:bg-white/10 hover:text-white"
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-                {label === "Mensajes" && resolvedUnreadCount > 0 && (
-                  <span
-                    className="ml-auto min-w-5 rounded-full bg-terracotta px-1.5 py-0.5 text-center text-[10px] font-bold text-white"
-                    aria-label={`${resolvedUnreadCount} ${
-                      resolvedUnreadCount === 1
-                        ? "mensaje no leído"
-                        : "mensajes no leídos"
-                    }`}
-                  >
-                    {resolvedUnreadCount}
-                  </span>
-                )}
-                {label === "Reservas" &&
-                  resolvedPendingReservationCount > 0 && (
-                    <span
-                      className="ml-auto min-w-5 rounded-full bg-terracotta px-1.5 py-0.5 text-center text-[10px] font-bold text-white"
-                      aria-label={`${resolvedPendingReservationCount} ${
-                        resolvedPendingReservationCount === 1
-                          ? "solicitud pendiente"
-                          : "solicitudes pendientes"
-                      }`}
-                    >
-                      {resolvedPendingReservationCount}
-                    </span>
-                  )}
-              </Link>
-            ) : (
-              <span
-                key={label}
-                aria-disabled="true"
-                className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-3 text-sm text-white/35"
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-                <span className="ml-auto text-[10px]">Próximamente</span>
-              </span>
-            ),
-          )}
-        </nav>
+        <DashboardNavigationLinks
+          role={admin ? "ADMIN" : "FARMER"}
+          variant="sidebar"
+          unreadCount={resolvedUnreadCount}
+          pendingReservationCount={resolvedPendingReservationCount}
+          className="mt-8 flex-1"
+        />
         <Link
           href={admin ? "/" : "/catalogo"}
           className="flex items-center gap-3 px-3 py-3 text-sm text-white/60 hover:text-white"
@@ -182,12 +125,21 @@ export async function DashboardShell({
         </Link>
       </aside>
       <div className="lg:pl-64">
-        <header className="flex h-20 items-center justify-between border-b border-ink/10 bg-white px-5 lg:px-10">
-          <div>
-            <p className="text-sm text-ink/45">Buenos días, {displayName}</p>
-            <h1 className="font-display text-xl font-extrabold text-ink">
-              {admin ? "Centro de administración" : "Resumen de tu finca"}
-            </h1>
+        <header className="flex h-auto min-h-20 items-center justify-between gap-2 border-b border-ink/10 bg-white px-5 py-3 lg:h-20 lg:gap-0 lg:py-0 lg:px-10">
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-3 lg:block lg:flex-none">
+            <DashboardMobileNavigation
+              role={admin ? "ADMIN" : "FARMER"}
+              unreadCount={resolvedUnreadCount}
+              pendingReservationCount={resolvedPendingReservationCount}
+            />
+            <div className="min-w-0">
+              <p className="truncate text-xs text-ink/45 sm:text-sm">
+                Buenos días, {displayName}
+              </p>
+              <h1 className="font-display text-base font-extrabold leading-tight text-ink sm:text-xl lg:leading-7">
+                {admin ? "Centro de administración" : "Resumen de tu finca"}
+              </h1>
+            </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
@@ -212,20 +164,6 @@ export async function DashboardShell({
             </div>
           </div>
         </header>
-        {admin === false && (
-          <nav
-            aria-label="Navegación principal"
-            className="flex border-b border-ink/10 bg-white px-5 py-2 lg:hidden"
-          >
-            <Link
-              href="/"
-              className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-forest hover:bg-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
-            >
-              <Home className="h-4 w-4" />
-              Inicio
-            </Link>
-          </nav>
-        )}
         <main className="p-5 lg:p-10">{children}</main>
       </div>
     </div>
