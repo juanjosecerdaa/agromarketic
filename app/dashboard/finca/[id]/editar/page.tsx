@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { ROLES } from "@/lib/auth/roles";
 import { prisma } from "@/lib/prisma";
+import { isUploadcareCdnUrl } from "@/lib/uploadcare-url";
+import { FincaIdentityImageManager } from "./identity-image-manager";
 import { EditFincaForm } from "./edit-finca-form";
 
 export const dynamic = "force-dynamic";
@@ -53,6 +54,11 @@ export default async function EditFincaPage({
         address: true,
         departmentId: true,
         municipalityId: true,
+        images: {
+          where: { animalId: null, type: { in: ["PRIMARY", "GALLERY"] } },
+          orderBy: { createdAt: "desc" },
+          select: { url: true, type: true },
+        },
       },
     }),
     prisma.department.findMany({
@@ -75,29 +81,48 @@ export default async function EditFincaPage({
     notFound();
   }
 
+  const profileImage = finca.images.find(
+    (image) =>
+      image.type === "PRIMARY" && isUploadcareCdnUrl(image.url),
+  );
+  const coverImage = finca.images.find(
+    (image) =>
+      image.type === "GALLERY" && isUploadcareCdnUrl(image.url),
+  );
+
   return (
-    <main className="min-h-screen bg-cream px-5 py-10">
-      <div className="mx-auto max-w-2xl">
-        <Link
-          href="/dashboard/finca"
-          className="inline-flex h-12 items-center rounded-xl bg-white px-3"
-        >
-          <Image src="/logo.png" alt="AgroMarketNIC" width={180} height={120} className="-my-9 h-[120px] w-[180px] object-contain" />
-        </Link>
-        <div className="mt-10 rounded-3xl border border-ink/10 bg-white p-7 shadow-soft md:p-10">
+    <main className="min-h-screen bg-cream px-5 py-6 sm:py-8">
+      <div className="mx-auto max-w-5xl">
+        <header className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
           <Link
             href="/dashboard/finca"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-ink/50"
+            aria-label="AgroMarketNIC — volver a mis fincas"
+            className="inline-flex min-w-0 items-center"
           >
-            <ArrowLeft className="h-4 w-4" /> Volver a mis fincas
+            <Image
+              src="/logo.png"
+              alt="AgroMarketNIC"
+              width={180}
+              height={120}
+              className="h-auto w-[132px] object-contain sm:w-[160px]"
+              priority
+            />
           </Link>
+          <Link
+            href="/dashboard/finca"
+            className="shrink-0 text-sm font-semibold text-ink/50 hover:text-forest"
+          >
+            Volver a mis fincas
+          </Link>
+        </header>
+        <div className="rounded-3xl border border-ink/10 bg-white p-7 shadow-soft md:p-10">
           <p className="text-sm font-bold uppercase tracking-[.18em] text-terracotta">
             Gestión de finca
           </p>
-          <h1 className="mt-2 font-display text-4xl font-extrabold">
+          <h1 className="mt-1 font-display text-3xl font-extrabold sm:text-4xl">
             Editar finca
           </h1>
-          <p className="mt-3 text-ink/55">
+          <p className="mt-2 text-sm text-ink/55 sm:text-base">
             Actualiza únicamente la información editable de esta finca.
           </p>
           <EditFincaForm
@@ -110,7 +135,20 @@ export default async function EditFincaPage({
               departmentId: finca.departmentId,
               municipalityId: finca.municipalityId,
             }}
-          />
+          >
+            <FincaIdentityImageManager
+              fincaId={finca.id}
+              fincaName={finca.name}
+              profileImageUrl={profileImage?.url ?? null}
+              hasProfileImage={finca.images.some(
+                (image) => image.type === "PRIMARY",
+              )}
+              coverImageUrl={coverImage?.url ?? null}
+              hasCoverImage={finca.images.some(
+                (image) => image.type === "GALLERY",
+              )}
+            />
+          </EditFincaForm>
         </div>
       </div>
     </main>
