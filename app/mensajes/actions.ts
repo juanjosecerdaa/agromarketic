@@ -217,6 +217,12 @@ export async function sendMessage(
     }
 
     await prisma.$transaction(async (transaction) => {
+      const sender = await transaction.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true },
+      });
+      const senderName = sender?.name.trim() || "Usuario";
+
       await transaction.message.create({
         data: {
           conversationId: conversation.id,
@@ -230,8 +236,8 @@ export async function sendMessage(
       await createNotification(transaction, {
         userId: recipientId,
         type: "MESSAGE",
-        title: "Nuevo mensaje",
-        message: "Tienes un nuevo mensaje.",
+        title: `Nuevo mensaje de ${senderName}`,
+        message: "Abre la conversación para leerlo.",
         href: `/mensajes/${conversation.id}`,
       });
       await transaction.conversation.update({

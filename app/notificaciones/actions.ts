@@ -37,6 +37,13 @@ async function getActiveUserId() {
   return user.id;
 }
 
+function getMessageConversationId(href: string | null) {
+  const match = href?.match(
+    /^\/mensajes\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i,
+  );
+  return match?.[1]?.toLowerCase();
+}
+
 export async function markNotificationAsRead(formData: FormData) {
   const notificationId = formData.get("notificationId");
   if (typeof notificationId !== "string" || !notificationId.trim()) {
@@ -50,15 +57,38 @@ export async function markNotificationAsRead(formData: FormData) {
 
   const notification = await prisma.notification.findFirst({
     where: { id: notificationId, userId },
-    select: { href: true },
+    select: { href: true, type: true, readAt: true },
   });
 
   if (!notification) {
     return;
   }
 
+  const conversationId =
+    notification.type === "MESSAGE" && notification.readAt === null
+      ? getMessageConversationId(notification.href)
+      : undefined;
+  const conversation =
+    conversationId && notification.href
+      ? await prisma.conversation.findFirst({
+          where: {
+            id: conversationId,
+            OR: [{ buyerId: userId }, { sellerId: userId }],
+          },
+          select: { id: true },
+        })
+      : null;
+
   await prisma.notification.updateMany({
-    where: { id: notificationId, userId, readAt: null },
+    where:
+      conversation && notification.href
+        ? {
+            userId,
+            type: "MESSAGE",
+            href: notification.href,
+            readAt: null,
+          }
+        : { id: notificationId, userId, readAt: null },
     data: { readAt: new Date() },
   });
 
