@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
 import {
   GoogleSignInButton,
   isGoogleSignInConfigured,
@@ -11,39 +10,50 @@ export default function Registro() {
   const googleConfigured = isGoogleSignInConfigured();
 
   return (
-    <main className="min-h-screen bg-cream px-5 py-10">
-      <div className="mx-auto max-w-2xl">
-        <div className="rounded-3xl border border-ink/10 bg-white px-7 pb-7 pt-2 shadow-soft md:px-10 md:pb-10 md:pt-2 [&>form]:mt-6">
-          <Link
-            href="/"
-            className="mx-auto mb-1 flex w-fit items-center justify-center"
-          >
-            <Image
-              src="/logo.png"
-              alt="AgroMarketNIC"
-              width={220}
-              height={147}
-              className="h-auto w-[180px] object-contain sm:w-[220px]"
-              priority
-            />
-          </Link>
+    <main className="min-h-screen bg-cream px-5 py-6 sm:py-8">
+      <div className="mx-auto max-w-5xl">
+        <header className="mb-5 grid grid-cols-1 gap-3 sm:mb-6 sm:grid-cols-[1fr_minmax(0,42rem)_1fr] sm:items-center sm:gap-4">
+          <div className="mx-auto flex w-full max-w-2xl sm:col-start-2">
+            <Link
+              href="/"
+              aria-label="AgroMarketNIC — ir al inicio"
+              className="inline-flex min-w-0 items-center"
+            >
+              <Image
+                src="/logo.png"
+                alt="AgroMarketNIC"
+                width={180}
+                height={120}
+                className="h-auto w-[132px] object-contain sm:w-[160px]"
+                priority
+              />
+            </Link>
+          </div>
           <Link
             href="/login"
-            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-ink/50"
+            className="shrink-0 justify-self-start text-sm font-semibold text-ink/50 hover:text-forest sm:col-start-3 sm:justify-self-end"
           >
-            <ArrowLeft className="h-4 w-4" /> Ya tengo una cuenta
+            Ya tengo una cuenta
           </Link>
-          <p className="text-sm font-bold uppercase tracking-[.18em] text-terracotta">
-            Únete a la comunidad
-          </p>
-          <h1 className="mt-2 font-display text-4xl font-extrabold">
-            Crea tu cuenta
-          </h1>
-          <p className="mt-2 text-ink/55">
-            Empieza a conectar con el mercado ganadero de Nicaragua.
-          </p>
-          <GoogleSignInButton dividerLabel="o crear cuenta con correo" />
-          <RegistroForm />
+        </header>
+        <div className="mx-auto w-full max-w-2xl rounded-3xl border border-ink/10 bg-white p-7 shadow-soft md:p-10">
+          <div className="mx-auto w-full max-w-4xl [&>form]:mt-4">
+            <p className="text-sm font-bold uppercase tracking-[.18em] text-terracotta">
+              Únete a la comunidad
+            </p>
+            <h1 className="mt-2 font-display text-4xl font-extrabold">
+              Crea tu cuenta
+            </h1>
+            <p className="mt-2 text-ink/55">
+              Empieza a conectar con el mercado ganadero de Nicaragua.
+            </p>
+            {googleConfigured && (
+              <div className="mt-4 [&>form]:mt-0 [&>div]:my-4">
+                <GoogleSignInButton dividerLabel="o crear cuenta con correo" />
+              </div>
+            )}
+            <RegistroForm />
+          </div>
         </div>
       </div>
     </main>
